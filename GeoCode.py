@@ -1,3 +1,5 @@
+import Helper
+
 class Parser(object):
 
     def __init__(self, geocode_result=None):
@@ -5,10 +7,9 @@ class Parser(object):
         if self.geocode_result is None:
             raise ValueError("ERROR: {} the input geocode_result is incorrect!").format(type(self))
 
-        self.geocode_result = geocode_result
 
     def get_status(self):
-        return Parser._get_value_from_geocode(self.geocode_result, "status")
+        return Helper.get_status_code_from_response(self.geocode_result)
 
     def get_place_id(self):
         return Parser._get_value_from_geocode(self.geocode_result, "place_id")

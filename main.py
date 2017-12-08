@@ -1,22 +1,35 @@
 import googlemaps
-import pprint
-import GeoCode
-import WebGoogleMaps
+import time
+import TestDurationData
 
 
-gmaps_engine = googlemaps.Client(key='Enter your API!')
-if gmaps_engine:
-    print("GMaps Engine is successfully created!")
-else:
-    raise Exception("ERROR - can't create google maps engine!")
+def main(app_key):
 
-# Geocoding an address
-geocode_result = gmaps_engine.geocode('Житловий комплекс "Славутич"')
-pprint.pprint(geocode_result, depth=3)
+    prev_time = time.time()
 
-geocode = GeoCode.Parser(geocode_result)
-status = geocode.get_status()
-place_id = geocode.get_place_id()
-print("status:{0}; place_id:{1}".format(status, place_id))
+    gmaps_engine = googlemaps.Client(key=app_key)
+    if gmaps_engine:
+        print("GMaps Engine is successfully created!")
+    else:
+        raise Exception("ERROR - can't create google maps engine!")
 
-WebGoogleMaps.open_with_place_id(place_id)
+    from_places = ['time ЖК',
+                   '5A, проспект Перемоги, 5А, Київ',
+                   'Житловий комплекс "Славутич"',
+                   'вулиця Глибочицька, 43, Київ',
+                   'вулиця Євгена Сверстюка, 4, Київ',  # ЖК Галактика
+                   'ЖК Метрополис',
+                   'ЖК JackHouse']
+
+    TestDurationData.run_tests(gmaps_engine, from_places)
+
+    elapsed_time = time.time() - prev_time
+    print("Total time in main() is:".format(elapsed_time))
+
+
+def read_googlemaps_api_key():
+    with open('googlemaps_key.dat', 'r', encoding='utf-8') as file:
+        return file.readline()
+
+app_key = read_googlemaps_api_key()
+main(app_key)
