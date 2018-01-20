@@ -7,7 +7,7 @@ import WebGoogleMaps
 def run_tests(gmaps_client, location):
     # Geocoding an address
     geocode_result = gmaps_client.geocode(location)
-    'pprint.pprint(geocode_result, depth=3)'
+    pprint.pprint(geocode_result, depth=3)
 
     geocode = GeoCode.Parser(geocode_result)
     status = geocode.get_status()
@@ -22,4 +22,4 @@ def run_tests(gmaps_client, location):
     duration = direction_route.get_duration()
     print("------ DirectionRoute test: status:{0}; duration:{1} ------ ".format(status, duration))
 
-    WebGoogleMaps.open_with_place_id(place_id)
+    'WebGoogleMaps.open_with_place_id(place_id)'

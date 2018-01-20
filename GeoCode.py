@@ -18,6 +18,14 @@ class Parser(object):
         status = self.get_status()
         return status == "OK"
 
+    def get_location(self):
+        geometry_dict = Parser._get_value_from_geocode(self.geocode_result, "geometry")
+        location_dict = geometry_dict['location']
+        if ((location_dict is None) or ('lat' not in location_dict) or ('lng' not in location_dict)):
+            return None
+
+        return (location_dict['lat'], location_dict['lng'])
+
     @staticmethod
     def _get_value_from_geocode(geocode, value):
         for item in geocode:
