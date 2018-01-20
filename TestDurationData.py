@@ -30,23 +30,43 @@ json_format_file = "C:\\Temp\\data_results_{}_{}_{}.json"
 
 
 def run_tests(gmaps_client, from_places):
-    __perform_duration_step_test(gmaps_client, from_places, to_places_leisure, 'driving', "leisure")
+    # Run tests for traffic driving:
+    driving_with_traffic = {}
+    driving_with_traffic["departure_time"] = datetime.datetime.now()
+    driving_with_traffic["traffic_model"] = "best_guess"
+    __perform_duration_step_test(gmaps_client, from_places, to_places_leisure, 'driving', "traffic_leisure", driving_with_traffic)
     time.sleep(10)
-    __perform_duration_step_test(gmaps_client, from_places, to_places_leisure, 'transit', "leisure")
+    __perform_duration_step_test(gmaps_client, from_places, to_places_work, 'driving', "traffic_work", driving_with_traffic)
     time.sleep(10)
 
+    # Run tests for simple driving:
+    __perform_duration_step_test(gmaps_client, from_places, to_places_leisure, 'driving', "leisure")
+    time.sleep(10)
     __perform_duration_step_test(gmaps_client, from_places, to_places_work, 'driving', "work")
+    time.sleep(10)
+
+    '''Run tests for subway transit'''
+    subway_transit_params = {}
+    subway_transit_params["transit_mode"] = "subway"
+    subway_transit_params["transit_routing_preference"] = "fewer_transfers"
+    __perform_duration_step_test(gmaps_client, from_places, to_places_leisure, 'transit', "subway_leisure", subway_transit_params)
+    time.sleep(10)
+    __perform_duration_step_test(gmaps_client, from_places, to_places_work, 'transit', "subway_work", subway_transit_params)
+    time.sleep(10)
+
+    '''Run tests for simple transit'''
+    __perform_duration_step_test(gmaps_client, from_places, to_places_leisure, 'transit', "leisure")
     time.sleep(10)
     __perform_duration_step_test(gmaps_client, from_places, to_places_work, 'transit', "work")
     time.sleep(10)
 
 
-def __perform_duration_step_test(gmaps_client, from_places, to_places, mode, suffix):
-    print("Started duration test with params:{}_{}".format(mode, suffix))
+def __perform_duration_step_test(gmaps_client, from_places, to_places, mode, suffix, additional_params=None):
+    print("{}_STARTED TestDurationData:{}_{}".format(datetime.datetime.now(), mode, suffix))
     finder = Directions.DirectionFinder(gmaps_client)
-    duration_data = finder.get_duration_data(from_places, to_places, mode=mode)
+    duration_data = finder.get_duration_data(from_places, to_places, mode=mode, additional_params=additional_params)
     __save_duration_dict_to_json(duration_data, mode, suffix)
-    print("Finished duration test with params:{}_{}".format(mode, suffix))
+    print("{}_FINISHED TestDurationData:{}_{}".format(datetime.datetime.now(), mode, suffix))
 
 
 def __save_duration_dict_to_json(duration_data, mode, suffix):
