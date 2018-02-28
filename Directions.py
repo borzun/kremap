@@ -41,7 +41,12 @@ class DirectionFinder(object):
                                                           transit_mode=transit_mode,
                                                           transit_routing_preference=transit_routing_preference,
                                                           traffic_model=traffic_model)
+            if direction_data is None:
+                print("ERROR - Direction data from:{} to: {} is NONE!".format(from_place, to_places))
             route_parser = DirectionRoute.RouteParser(direction_data)
+            if not route_parser.is_valid():
+                print("ERROR - Direction data from:{} to: {} is not OK!".format(from_place, to_places))
+
             results[to_place] = route_parser.get_duration()
 
         elapsed_time = time.time() - time_now
@@ -55,7 +60,7 @@ class DirectionFinder(object):
 
         results = {}
         try:
-            for future in concurrent.futures.as_completed(futures, timeout=15):
+            for future in concurrent.futures.as_completed(futures, timeout=60):
                 place = futures[future]
                 try:
                     duration_data = future.result()
@@ -64,8 +69,8 @@ class DirectionFinder(object):
                     return None
                 else:
                     results[place] = duration_data
-        except TimeoutError:
-            print("ERROR - timeout error is happened while executing Futures!")
+        except TimeoutError as exc:
+            print("ERROR - timeout error for place: {} with exc:{}!".format(from_places, exc))
             return None
 
         return results

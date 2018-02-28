@@ -3,6 +3,7 @@ import Helper
 import json
 import datetime
 import time
+import os, errno
 
 
 to_places_leisure = ['Багатофункціональний комплекс Gulliver',
@@ -21,44 +22,83 @@ to_places_work = ['СофтСерв, вулиця Дегтярівська, 33В
                   'Luxoft Ukraine, вулиця Радищева, 10/14, Київ, 02000',
                   'IT-Універ компанії Інфопульс, вулиця Польова, 24, Київ, 03056',
                   'вулиця Кирилівська, 39, Київ',
-                  'Ciklum, вулиця Миколи Амосова, 12, Київ, 03680',
+                  '(2I build.), Okhtyrskyi Ln, 7, Kiev, Kyiv city, 03680',
                   'Daxx IT Staffing Kiev, Куренівський провулок, 12, Киев, 04073',
                   'ELEKS, вулиця Антоновича, 172, Київ, 03150',
                   'Materialise Ukraine, вулиця Раїси Окіпної, 8, Київ, 02000']
 
-json_format_file = "C:\\Temp\\data_results_{}_{}_{}.json"
+
+# TODO: add to_places
+def run_lviv_tests(gmaps_client):
+    places = [" 79000, Pid Dubom Street, 26, Lviv, Lviv Oblast",            # Forum Appartments
+              "ЖК Avalon",
+              "Viacheslava Chornovola Ave, 69, L'viv, Lviv Oblast, 79000",  # ЖК Сіті
+              "Semycvit",
+              "ЖК Велика Британія",
+              "ЖК Америка",
+              "Naukova St, 5А, L'viv",                                      # ЖК Парус Смарт
+              "вул. Червоної Калини, 60, Львів"]                            # ЖК Avalon Up
+
+    run_tests(gmaps_client, places)
+
+
+def run_kiev_tests(gmaps_client):
+    from_places = ['time ЖК',
+                   '5A, проспект Перемоги, 5А, Київ',
+                   'Житловий комплекс "Славутич"',
+                   'вулиця Глибочицька, 43, Київ',
+                   'вулиця Євгена Сверстюка, 4, Київ']
+
+    run_tests(gmaps_client, from_places)
 
 
 def run_tests(gmaps_client, from_places):
+    sleeper = lambda: time.sleep(10)
     # Run tests for traffic driving:
+    run_driving_with_traffic_tests(gmaps_client, from_places, sleeper)
+
+    # Run tests for simple driving:
+    # run_driving_tests(gmaps_client, from_places, sleeper)
+
+    # Run tests for subway transit
+    run_subway_transit_tests(gmaps_client, from_places, sleeper)
+
+    # Run tests for simple transit
+    run_transit_tests(gmaps_client, from_places, sleeper)
+
+
+def run_driving_with_traffic_tests(gmaps_client, from_places, after_test_executor):
     driving_with_traffic = {}
     driving_with_traffic["departure_time"] = datetime.datetime.now()
     driving_with_traffic["traffic_model"] = "best_guess"
     __perform_duration_step_test(gmaps_client, from_places, to_places_leisure, 'driving', "traffic_leisure", driving_with_traffic)
-    time.sleep(10)
+    after_test_executor()
     __perform_duration_step_test(gmaps_client, from_places, to_places_work, 'driving', "traffic_work", driving_with_traffic)
-    time.sleep(10)
+    after_test_executor()
 
-    # Run tests for simple driving:
+
+def run_driving_tests(gmaps_client, from_places, after_test_executor):
     __perform_duration_step_test(gmaps_client, from_places, to_places_leisure, 'driving', "leisure")
-    time.sleep(10)
+    after_test_executor()
     __perform_duration_step_test(gmaps_client, from_places, to_places_work, 'driving', "work")
-    time.sleep(10)
+    after_test_executor()
 
-    '''Run tests for subway transit'''
+
+def run_subway_transit_tests(gmaps_client, from_places, after_test_executor):
     subway_transit_params = {}
     subway_transit_params["transit_mode"] = "subway"
     subway_transit_params["transit_routing_preference"] = "fewer_transfers"
     __perform_duration_step_test(gmaps_client, from_places, to_places_leisure, 'transit', "subway_leisure", subway_transit_params)
-    time.sleep(10)
+    after_test_executor()
     __perform_duration_step_test(gmaps_client, from_places, to_places_work, 'transit', "subway_work", subway_transit_params)
-    time.sleep(10)
+    after_test_executor()
 
-    '''Run tests for simple transit'''
+
+def run_transit_tests(gmaps_client, from_places, after_test_executor):
     __perform_duration_step_test(gmaps_client, from_places, to_places_leisure, 'transit', "leisure")
-    time.sleep(10)
+    after_test_executor()
     __perform_duration_step_test(gmaps_client, from_places, to_places_work, 'transit', "work")
-    time.sleep(10)
+    after_test_executor()
 
 
 def __perform_duration_step_test(gmaps_client, from_places, to_places, mode, suffix, additional_params=None):
@@ -70,9 +110,24 @@ def __perform_duration_step_test(gmaps_client, from_places, to_places, mode, suf
 
 
 def __save_duration_dict_to_json(duration_data, mode, suffix):
+    # Ensure that folder is properly created:
     curr_datetime = datetime.datetime.now()
-    date_str = curr_datetime.strftime("%d.%m_%H-%M")
-    file_name = json_format_file.format(suffix, mode, date_str)
+    day_month_str = curr_datetime.strftime("%d_%m")
+
+    result_format_dir = "C:\\Temp\\{}\\{}\\{}"
+    curr_dir = result_format_dir.format(day_month_str, mode, suffix)
+
+    try:
+        if not os.path.exists(curr_dir):
+            os.makedirs(curr_dir)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            print("ERROR - can't create dir[{}] - something bad happens:{}".format(curr_dir, e))
+        else:
+            print("ERROR - while creating a dir[{}] - something bad happened:{}".format(curr_dir, e))
+
+    date_str = curr_datetime.strftime("%H-%M")
+    file_name = "{}\\{}.json".format(curr_dir, date_str)
     with open(file_name, "w", encoding='utf-8') as file:
         json.dump(duration_data, file, indent=4, ensure_ascii=False)
 
