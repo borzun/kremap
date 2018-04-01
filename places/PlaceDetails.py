@@ -5,6 +5,9 @@ class PlaceDetails(object):
     RATING_KEY = 'rating'
     REVIEWS_KEY = 'reviews'
     PLACE_ID_KEY = 'place_id'
+    ADDRESS_ID_KEY = 'formatted_address'
+
+    DISTANCE_ID_KEY = '__KREMAP_distance'
 
     def __init__(self, place_results):
         self.place_results = place_results["result"]
@@ -33,6 +36,15 @@ class PlaceDetails(object):
 
     def get_place_id(self):
         return self._get_key_value(self.PLACE_ID_KEY, absent_value="")
+
+    def get_address(self):
+        return self._get_key_value(self.ADDRESS_ID_KEY, absent_value="")
+
+    def add_distance_value(self, distance):
+        self.place_results[self.DISTANCE_ID_KEY] = distance
+
+    def get_distance_value(self):
+        return self._get_key_value(self.DISTANCE_ID_KEY, absent_value=0)
 
     def _get_key_value(self, key, absent_value=None):
         if not self.is_valid():

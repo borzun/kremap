@@ -31,7 +31,6 @@ class DirectionFinder(object):
             if "traffic_model" in additional_params:
                 traffic_model = additional_params["traffic_model"]
 
-        print("Started finding duration data from place:{}".format(from_place))
         for to_place in to_places:
             direction_data = self.gmaps_client.directions(from_place,
                                                           to_place,
@@ -50,8 +49,6 @@ class DirectionFinder(object):
             results[to_place] = route_parser.get_duration()
 
         elapsed_time = time.time() - time_now
-        print("Finished finding duration data from place:{} in: {} seconds".format(from_place, elapsed_time))
-
         return results
 
     def get_duration_data(self, from_places, to_places, mode, additional_params=None):
