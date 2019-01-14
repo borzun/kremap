@@ -15,6 +15,3 @@ class PlacesFilterer(object):
             return False
 
         return place.get_num_of_reviews() >= 5
-
-
-

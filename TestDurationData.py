@@ -3,7 +3,8 @@ import Helper
 import json
 import datetime
 import time
-import os, errno
+import os
+import errno
 
 
 to_places_leisure = ['Багатофункціональний комплекс Gulliver',
@@ -63,7 +64,7 @@ def run_kiev_rent_duration_tests(gmaps_client):
 
 
 def run_tests(gmaps_client, from_places):
-    sleeper = lambda: time.sleep(10)
+    def sleeper(): return time.sleep(10)
     # Run tests for traffic driving:
     run_driving_with_traffic_tests(gmaps_client, from_places, sleeper)
 
@@ -81,14 +82,17 @@ def run_driving_with_traffic_tests(gmaps_client, from_places, after_test_executo
     driving_with_traffic = {}
     driving_with_traffic["departure_time"] = datetime.datetime.now()
     driving_with_traffic["traffic_model"] = "best_guess"
-    __perform_duration_step_test(gmaps_client, from_places, to_places_leisure, 'driving', "traffic_leisure", driving_with_traffic)
+    __perform_duration_step_test(gmaps_client, from_places, to_places_leisure,
+                                 'driving', "traffic_leisure", driving_with_traffic)
     after_test_executor()
-    __perform_duration_step_test(gmaps_client, from_places, to_places_work, 'driving', "traffic_work", driving_with_traffic)
+    __perform_duration_step_test(gmaps_client, from_places, to_places_work,
+                                 'driving', "traffic_work", driving_with_traffic)
     after_test_executor()
 
 
 def run_driving_tests(gmaps_client, from_places, after_test_executor):
-    __perform_duration_step_test(gmaps_client, from_places, to_places_leisure, 'driving', "leisure")
+    __perform_duration_step_test(gmaps_client, from_places,
+                                 to_places_leisure, 'driving', "leisure")
     after_test_executor()
     __perform_duration_step_test(gmaps_client, from_places, to_places_work, 'driving', "work")
     after_test_executor()
@@ -98,14 +102,17 @@ def run_subway_transit_tests(gmaps_client, from_places, after_test_executor):
     subway_transit_params = {}
     subway_transit_params["transit_mode"] = "subway"
     subway_transit_params["transit_routing_preference"] = "fewer_transfers"
-    __perform_duration_step_test(gmaps_client, from_places, to_places_leisure, 'transit', "subway_leisure", subway_transit_params)
+    __perform_duration_step_test(gmaps_client, from_places, to_places_leisure,
+                                 'transit', "subway_leisure", subway_transit_params)
     after_test_executor()
-    __perform_duration_step_test(gmaps_client, from_places, to_places_work, 'transit', "subway_work", subway_transit_params)
+    __perform_duration_step_test(gmaps_client, from_places, to_places_work,
+                                 'transit', "subway_work", subway_transit_params)
     after_test_executor()
 
 
 def run_transit_tests(gmaps_client, from_places, after_test_executor):
-    __perform_duration_step_test(gmaps_client, from_places, to_places_leisure, 'transit', "leisure")
+    __perform_duration_step_test(gmaps_client, from_places,
+                                 to_places_leisure, 'transit', "leisure")
     after_test_executor()
     __perform_duration_step_test(gmaps_client, from_places, to_places_work, 'transit', "work")
     after_test_executor()
@@ -114,7 +121,8 @@ def run_transit_tests(gmaps_client, from_places, after_test_executor):
 def __perform_duration_step_test(gmaps_client, from_places, to_places, mode, suffix, additional_params=None):
     print("{}_STARTED TestDurationData:{}_{}".format(datetime.datetime.now(), mode, suffix))
     finder = Directions.DirectionFinder(gmaps_client)
-    duration_data = finder.get_duration_data(from_places, to_places, mode=mode, additional_params=additional_params)
+    duration_data = finder.get_duration_data(
+        from_places, to_places, mode=mode, additional_params=additional_params)
     __save_duration_dict_to_json(duration_data, mode, suffix)
     print("{}_FINISHED TestDurationData:{}_{}".format(datetime.datetime.now(), mode, suffix))
 
@@ -134,7 +142,8 @@ def __save_duration_dict_to_json(duration_data, mode, suffix):
         if e.errno != errno.EEXIST:
             print("ERROR - can't create dir[{}] - something bad happens:{}".format(curr_dir, e))
         else:
-            print("ERROR - while creating a dir[{}] - something bad happened:{}".format(curr_dir, e))
+            print(
+                "ERROR - while creating a dir[{}] - something bad happened:{}".format(curr_dir, e))
 
     date_str = curr_datetime.strftime("%H-%M")
     file_name = "{}\\{}.json".format(curr_dir, date_str)
@@ -143,7 +152,8 @@ def __save_duration_dict_to_json(duration_data, mode, suffix):
 
     best_places = {}
     for key, value in duration_data.items():
-        average = Helper.mean([Helper.convert_to_minutes(time_value) for time_value in value.values()])
+        average = Helper.mean([Helper.convert_to_minutes(time_value)
+                               for time_value in value.values()])
         best_places[key] = average
 
     sorted_places = sorted(best_places.items(), key=lambda x: x[1])

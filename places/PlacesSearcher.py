@@ -12,7 +12,7 @@ class PlacesSearcher(object):
         self.place = place
         self.gmaps_client = gmaps_client
 
-    #TODO: need to add caching here!
+    # TODO: need to add caching here!
     def search_gyms_nearby(self, radius=1500):
         return self._search_places_impl(['gym'], ['Sports Complex'], radius)
 
@@ -44,7 +44,8 @@ class PlacesSearcher(object):
                         details = PlaceDetails(gmaps_place_details)
                         place_details.append(details)
                     except ValueError as err:
-                        print("ERROR: Incorrect PlaceDetails error: {0} for place_id: {1}!".format(err, place_id))
+                        print("ERROR: Incorrect PlaceDetails error: {0} for place_id: {1}!".format(
+                            err, place_id))
 
         return place_details
 
@@ -72,4 +73,3 @@ class PlacesSearcher(object):
             all_places = all_places + keyword_places
 
         return list(OrderedDict.fromkeys(all_places))
-

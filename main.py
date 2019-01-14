@@ -23,6 +23,7 @@ def read_googlemaps_api_key():
     with open('googlemaps_key.dat', 'r', encoding='utf-8') as file:
         return file.readline()
 
+
 def main_job(t):
     print("JOB_STARTED: {0}".format(t))
     app_key = read_googlemaps_api_key()

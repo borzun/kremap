@@ -1,5 +1,6 @@
 import Helper
 
+
 class Parser(object):
 
     def __init__(self, geocode_result=None):

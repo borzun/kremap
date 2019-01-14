@@ -1,5 +1,6 @@
 from pprint import pprint
 
+
 class PlaceDetails(object):
     NAME_KEY = 'name'
     RATING_KEY = 'rating'

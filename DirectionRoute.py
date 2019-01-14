@@ -5,7 +5,8 @@ class RouteParser(object):
     def __init__(self, direction_result=None):
         self.direction_result = direction_result
         if self.direction_result is None:
-            raise ValueError("ERROR: {} the input direction_result is incorrect!").format(type(self))
+            raise ValueError(
+                "ERROR: {} the input direction_result is incorrect!").format(type(self))
 
     def get_status(self):
         return Helper.get_status_code_from_response(self.direction_result)

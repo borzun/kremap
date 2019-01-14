@@ -53,7 +53,8 @@ class DirectionFinder(object):
 
     def get_duration_data(self, from_places, to_places, mode, additional_params=None):
         executor = concurrent.futures.ThreadPoolExecutor(len(from_places))
-        futures = {executor.submit(DirectionFinder.__get_duration_data_from_place, self, place, to_places, mode, additional_params): place for place in from_places}
+        futures = {executor.submit(DirectionFinder.__get_duration_data_from_place, self,
+                                   place, to_places, mode, additional_params): place for place in from_places}
 
         results = {}
         try:
