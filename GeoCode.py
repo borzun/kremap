@@ -7,7 +7,6 @@ class Parser(object):
         if self.geocode_result is None:
             raise ValueError("ERROR: {} the input geocode_result is incorrect!").format(type(self))
 
-
     def get_status(self):
         return Helper.get_status_code_from_response(self.geocode_result)
 

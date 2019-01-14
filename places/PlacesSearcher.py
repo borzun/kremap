@@ -18,7 +18,16 @@ class PlacesSearcher(object):
 
     # TODO: need to add caching here!
     def search_grocery_stores_nearby(self, radius=1000):
-        return self._search_places_impl(['supermarket'], ['Продукты'], radius)
+        return self._search_places_impl(['supermarket', 'shopping_mall'], ['Продукты'], radius)
+
+    def search_eat_places_neasby(self, radius=1000):
+        return self._search_places_impl(types=['bar', 'cafe', 'restaurant'], keywords=[], radius=radius)
+
+    def search_fun_places_nearby(self, radius=1500):
+        return self._search_places_impl(types=['amusement_park', 'bowling_alley', 'movie_theater', 'shopping_mall'], keywords=[], radius=radius)
+
+    def search_healthcare_places_nearby(self, radius=2000):
+        return self._search_places_impl(types=['dentist', 'doctor', 'hospital'], keywords=[], radius=radius)
 
     def _create_place_details_list(self, gmaps_places):
         place_details = []
