@@ -52,6 +52,16 @@ def run_kiev_tests(gmaps_client):
     run_tests(gmaps_client, from_places)
 
 
+def run_kiev_rent_duration_tests(gmaps_client):
+    from_places = ['Mykhaila Lomonosova St, 54А Kyiv',
+                   '51 Shchekavytska St Kyiv',
+                   'Lukianivska St, 7А, 76, Kyiv',
+                   "Obolons'kyi Ave, 9, Kyiv",
+                   'Heroiv Stalinhradu Avenue, 17А, Kyiv']
+
+    run_tests(gmaps_client, from_places)
+
+
 def run_tests(gmaps_client, from_places):
     sleeper = lambda: time.sleep(10)
     # Run tests for traffic driving:
