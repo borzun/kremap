@@ -1,9 +1,9 @@
-from Directions import DirectionFinder
+from RouteCalculator import RouteCalculator
 
 
 class PlacesDistanceCalculator(object):
     def __init__(self, gmaps_client, origin_place, places):
-        self.finder = DirectionFinder(gmaps_client)
+        self.finder = RouteCalculator(gmaps_client)
         for place in places:
             self._calculate_distance(origin_place, place)
 

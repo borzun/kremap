@@ -1,10 +1,10 @@
 import googlemaps
 import concurrent.futures
-import DirectionRoute
+import RouteParser
 import time
 
 
-class DirectionFinder(object):
+class RouteCalculator(object):
 
     def __init__(self, gmaps_client):
         self.gmaps_client = gmaps_client
@@ -42,7 +42,7 @@ class DirectionFinder(object):
                                                           traffic_model=traffic_model)
             if direction_data is None:
                 print("ERROR - Direction data from:{} to: {} is NONE!".format(from_place, to_places))
-            route_parser = DirectionRoute.RouteParser(direction_data)
+            route_parser = RouteParser.RouteParser(direction_data)
             if not route_parser.is_valid():
                 print("ERROR - Direction data from:{} to: {} is not OK!".format(from_place, to_places))
 
@@ -53,7 +53,7 @@ class DirectionFinder(object):
 
     def get_duration_data(self, from_places, to_places, mode, additional_params=None):
         executor = concurrent.futures.ThreadPoolExecutor(len(from_places))
-        futures = {executor.submit(DirectionFinder.__get_duration_data_from_place, self,
+        futures = {executor.submit(RouteCalculator.__get_duration_data_from_place, self,
                                    place, to_places, mode, additional_params): place for place in from_places}
 
         results = {}
