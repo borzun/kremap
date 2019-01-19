@@ -1,4 +1,4 @@
-from WebBrowser import WebBrowser
+from _internal.web_browser import WebBrowser
 
 
 def create_open_web_google_maps_url(place_id):

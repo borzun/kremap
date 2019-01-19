@@ -1,8 +1,9 @@
-import googlemaps
 import time
 
-import TestDurationData
-import schedule
+import googlemaps
+from tests import TestGeolocation
+from tests import TestDurationData
+from tests import TestPlaces
 
 
 def main(app_key):
@@ -14,7 +15,9 @@ def main(app_key):
     else:
         raise Exception("ERROR - can't create google maps engine!")
 
-    TestDurationData.run_kiev_tests(gmaps_engine)
+    TestGeolocation.run_tests(gmaps_engine, "ЖК Тайм")
+    # TestDurationData.run_kiev_tests(gmaps_engine)
+    # TestPlaces.run_tests(gmaps_engine)
     elapsed_time = time.time() - prev_time
     print("Total time in main() is:".format(elapsed_time))
 
@@ -31,19 +34,20 @@ def main_job(t):
     print("JOB_FINISHED: {0}".format(t))
     return
 
-times_workday = [
-         "08:00",
-         "09:00",
-         "10:00",
-         "13:00",
-         "18:00",
-         "19:00",
-         "20:00"]
 
-for str_time in times_workday:
-    schedule.every().day.at(str_time).do(main_job, str_time)
-
-# Main loop for timed run:
-while True:
-    schedule.run_pending()
-    time.sleep(60)
+main_job("21:31")
+#
+# times_workday = [
+#          "09:25",
+#          "11:00",
+#          "13:00",
+#          "18:00",
+#          "19:00"]
+#
+# for str_time in times_workday:
+#     schedule.every().day.at(str_time).do(main_job, str_time)
+#
+# # Main loop for timed run:
+# while True:
+#     schedule.run_pending()
+#     time.sleep(60)

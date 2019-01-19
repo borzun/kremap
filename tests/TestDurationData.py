@@ -1,11 +1,32 @@
-import RouteCalculator
-import Helper
-import json
 import datetime
-import time
-import os
 import errno
+import json
+import os
+import time
 
+from _internal import utility
+from kremap import route_calculator
+
+# to_places_leisure = ['Багатофункціональний комплекс Gulliver',
+#                      'Океан Плаза, вулиця Антоновича, 176, Київ, 03150',
+#                      'Майдан Незалежності, Київ',
+#                      'Залізничний вокзал, Київ, 02000',
+#                      'Ботанічний сад ім. М. М. Гришка, вулиця Тимірязєвська, 4, Київ, 02000',
+#                      'ВДНГ Експоцентр, 03127, проспект Академіка Глушкова, 1, Київ',
+#                      'Площа Льва Толстого, Київ, 02000',
+#                      'Києво-Печерська лавра, Київ, 02000',
+#                      'Блокбастер, проспект Степана Бандери, 34В, Київ, 04655']
+#
+# to_places_work = ['СофтСерв, вулиця Дегтярівська, 33В, Київ, 02000',
+#                   'SoftServe, б, вулиця Лейпцизька, 15, Київ',
+#                   'ТОВ "ГлобалЛоджик Україна", вулиця Миколи Грінченка, 2/1, Київ, 02000',
+#                   'Luxoft Ukraine, вулиця Радищева, 10/14, Київ, 02000',
+#                   'IT-Універ компанії Інфопульс, вулиця Польова, 24, Київ, 03056',
+#                   'вулиця Кирилівська, 39, Київ',
+#                   '(2I build.), Okhtyrskyi Ln, 7, Kiev, Kyiv city, 03680',
+#                   'Daxx IT Staffing Kiev, Куренівський провулок, 12, Киев, 04073',
+#                   'ELEKS, вулиця Антоновича, 172, Київ, 03150',
+#                   'Materialise Ukraine, вулиця Раїси Окіпної, 8, Київ, 02000']
 
 to_places_leisure = ['Багатофункціональний комплекс Gulliver',
                      'Океан Плаза, вулиця Антоновича, 176, Київ, 03150',
@@ -17,16 +38,12 @@ to_places_leisure = ['Багатофункціональний комплекс 
                      'Києво-Печерська лавра, Київ, 02000',
                      'Блокбастер, проспект Степана Бандери, 34В, Київ, 04655']
 
-to_places_work = ['СофтСерв, вулиця Дегтярівська, 33В, Київ, 02000',
+to_places_work = ['вулиця Кирилівська, 39, Київ',
+                  'СофтСерв, вулиця Дегтярівська, 33В, Київ, 02000',
                   'SoftServe, б, вулиця Лейпцизька, 15, Київ',
                   'ТОВ "ГлобалЛоджик Україна", вулиця Миколи Грінченка, 2/1, Київ, 02000',
                   'Luxoft Ukraine, вулиця Радищева, 10/14, Київ, 02000',
-                  'IT-Універ компанії Інфопульс, вулиця Польова, 24, Київ, 03056',
-                  'вулиця Кирилівська, 39, Київ',
-                  '(2I build.), Okhtyrskyi Ln, 7, Kiev, Kyiv city, 03680',
-                  'Daxx IT Staffing Kiev, Куренівський провулок, 12, Киев, 04073',
-                  'ELEKS, вулиця Антоновича, 172, Київ, 03150',
-                  'Materialise Ukraine, вулиця Раїси Окіпної, 8, Київ, 02000']
+                  'IT-Універ компанії Інфопульс, вулиця Польова, 24, Київ, 03056']
 
 
 # TODO: add to_places
@@ -65,16 +82,16 @@ def run_kiev_rent_duration_tests(gmaps_client):
 
 def run_tests(gmaps_client, from_places):
     # Run tests for traffic driving:
-    # run_driving_with_traffic_tests(gmaps_client, from_places, sleeper)
+    run_driving_with_traffic_tests(gmaps_client, from_places)
 
     # Run tests for simple driving:
-    # run_driving_tests(gmaps_client, from_places, sleeper)
+    run_driving_tests(gmaps_client, from_places)
 
     # Run tests for subway transit
-    run_subway_transit_tests(gmaps_client, from_places)
+    # run_subway_transit_tests(gmaps_client, from_places)
 
     # Run tests for simple transit
-    run_transit_tests(gmaps_client, from_places)
+    # run_transit_tests(gmaps_client, from_places)
 
 
 def run_driving_with_traffic_tests(gmaps_client, from_places):
@@ -125,9 +142,8 @@ def sleeper(test_func):
 def __perform_duration_step_test(gmaps_client, from_places, to_places, mode, suffix, additional_params=None):
     print("{}_STARTED TestDurationData:{}_{}".format(
         datetime.datetime.now(), mode, suffix))
-    finder = RouteCalculator.RouteCalculator(gmaps_client)
-    duration_data = finder.get_duration_data(
-        from_places, to_places, mode=mode, additional_params=additional_params)
+    duration_data = route_calculator.calculate_duration_data(gmaps_client,
+                                                             from_places, to_places, mode=mode, additional_params=additional_params)
     __save_duration_dict_to_json(duration_data, mode, suffix)
     print("{}_FINISHED TestDurationData:{}_{}".format(
         datetime.datetime.now(), mode, suffix))
@@ -159,8 +175,8 @@ def __save_duration_dict_to_json(duration_data, mode, suffix):
 
     best_places = {}
     for key, value in duration_data.items():
-        average = Helper.mean([Helper.convert_to_minutes(time_value)
-                               for time_value in value.values()])
+        average = utility.mean([utility.convert_to_minutes(time_value)
+                                for time_value in value.values()])
         best_places[key] = average
 
     sorted_places = sorted(best_places.items(), key=lambda x: x[1])
